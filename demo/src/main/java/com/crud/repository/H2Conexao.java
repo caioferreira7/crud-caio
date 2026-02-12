@@ -11,7 +11,7 @@ public class H2Conexao implements IConexao {
     private final String pass;
 
     public H2Conexao() {
-        this.url = "jdbc:h2:mem:meubanco;DB_CLOSE_DELAY=-1"; // memória H2
+        this.url = "jdbc:h2:mem:meubanco;DB_CLOSE_DELAY=-1"; 
         this.user = "sa";
         this.pass = "";
     }

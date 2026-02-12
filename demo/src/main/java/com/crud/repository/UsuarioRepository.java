@@ -7,9 +7,9 @@ import java.util.List;
 
 public class UsuarioRepository implements IUsuarioRepository {
 
-    private final IConexao conexao; // ← variável de instância (POO)
+    private final IConexao conexao; 
 
-    public UsuarioRepository(IConexao conexao) { // ← injeta dependência
+    public UsuarioRepository(IConexao conexao) { 
         this.conexao = conexao;
         criarTabelaSeNaoExistir();
     }
@@ -19,7 +19,7 @@ public class UsuarioRepository implements IUsuarioRepository {
                      "id INT AUTO_INCREMENT PRIMARY KEY," +
                      "nome VARCHAR(100)," +
                      "email VARCHAR(100) UNIQUE)";
-        try (Connection conn = conexao.getConnection(); // ← usa a interface
+        try (Connection conn = conexao.getConnection(); 
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
@@ -30,7 +30,7 @@ public class UsuarioRepository implements IUsuarioRepository {
     @Override
     public void salvar(Usuario usuario) {
         String sql = "INSERT INTO usuario (nome, email) VALUES (?, ?)";
-        try (Connection conn = conexao.getConnection(); // ← usa a interface
+        try (Connection conn = conexao.getConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, usuario.getNome());
             ps.setString(2, usuario.getEmail());
@@ -49,7 +49,7 @@ public class UsuarioRepository implements IUsuarioRepository {
     public List<Usuario> listarTodos() {
         List<Usuario> usuarios = new ArrayList<>();
         String sql = "SELECT * FROM usuario";
-        try (Connection conn = conexao.getConnection(); // ← usa a interface
+        try (Connection conn = conexao.getConnection(); 
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -70,7 +70,7 @@ public class UsuarioRepository implements IUsuarioRepository {
     @Override
     public void atualizar(Usuario usuario) {
         String sql = "UPDATE usuario SET nome=?, email=? WHERE id=?";
-        try (Connection conn = conexao.getConnection(); // ← usa a interface
+        try (Connection conn = conexao.getConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, usuario.getNome());
@@ -86,7 +86,7 @@ public class UsuarioRepository implements IUsuarioRepository {
     @Override
     public void remover(int id) {
         String sql = "DELETE FROM usuario WHERE id=?";
-        try (Connection conn = conexao.getConnection(); // ← usa a interface
+        try (Connection conn = conexao.getConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -100,7 +100,7 @@ public class UsuarioRepository implements IUsuarioRepository {
     @Override
     public Usuario buscarPorId(int id) {
         String sql = "SELECT * FROM usuario WHERE id=?";
-        try (Connection conn = conexao.getConnection(); // ← usa a interface
+        try (Connection conn = conexao.getConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
