@@ -1,19 +1,16 @@
 package com.crud;
 
-import com.crud.model.Usuario;
-import com.crud.repository.H2Conexao;
-import com.crud.repository.IConexao;
-import com.crud.repository.UsuarioRepository;
-import com.crud.service.UsuarioService;
-
 import java.util.List;
 import java.util.Scanner;
+
+import com.crud.model.Usuario;
+import com.crud.repository.UsuarioRepository;
+import com.crud.service.UsuarioService;
 
 public class Main {
     public static void main(String[] args) {
         
-        IConexao conexao = new H2Conexao();
-        UsuarioRepository repository = new UsuarioRepository(conexao);
+        UsuarioRepository repository = new UsuarioRepository();
         UsuarioService service = new UsuarioService(repository);
 
         Scanner scanner = new Scanner(System.in);
