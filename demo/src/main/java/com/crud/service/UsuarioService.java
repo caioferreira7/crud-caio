@@ -1,41 +1,47 @@
 package com.crud.service;
 
+import org.springframework.stereotype.Service;
+import java.util.List;
 import com.crud.model.Usuario;
-import com.crud.repository.IUsuarioRepository;
 import com.crud.repository.UsuarioRepository;
 
-import java.util.List;
-
+@Service
 public class UsuarioService {
-    private final IUsuarioRepository repository;
 
-    
-    public UsuarioService(IUsuarioRepository repository) {
+    private final UsuarioRepository repository;
+
+    public UsuarioService(UsuarioRepository repository) {
         this.repository = repository;
     }
 
-    public void criarUsuario(String nome, String email) {
-        if (nome == null || nome.isBlank()) throw new IllegalArgumentException("Nome obrigatório.");
-        if (email == null || email.isBlank()) throw new IllegalArgumentException("Email obrigatório.");
+    public Usuario criarUsuario(Usuario usuario) {
+        if (usuario.getNome() == null || usuario.getNome().isBlank())
+            throw new IllegalArgumentException("Nome obrigatório.");
 
-        repository.salvar(new Usuario(nome, email));
+        if (usuario.getEmail() == null || usuario.getEmail().isBlank())
+            throw new IllegalArgumentException("Email obrigatório.");
+
+        return repository.save(usuario);
     }
 
     public List<Usuario> listarUsuarios() {
-        return repository.listarTodos();
+        return repository.findAll();
     }
 
-    public void atualizarUsuario(int id, String nome, String email) {
-        Usuario u = repository.buscarPorId(id);
-        if (u == null) throw new RuntimeException("Usuário não encontrado.");
-        u.setNome(nome);
-        u.setEmail(email);
-        repository.atualizar(u);
+    public Usuario atualizarUsuario(Integer id, Usuario usuarioAtualizado) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+
+        usuario.setNome(usuarioAtualizado.getNome());
+        usuario.setEmail(usuarioAtualizado.getEmail());
+
+        return repository.save(usuario);
     }
 
-    public void deletarUsuario(int id) {
-        Usuario u = repository.buscarPorId(id);
-        if (u == null) throw new RuntimeException("Usuário não encontrado.");
-        repository.remover(id);
+    public void deletarUsuario(Integer id) {
+        if (!repository.existsById(id))
+            throw new RuntimeException("Usuário não encontrado.");
+
+        repository.deleteById(id);
     }
 }
