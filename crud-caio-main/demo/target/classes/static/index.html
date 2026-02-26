@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD Usuários</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+
+  <h2>CRUD Usuários</h2>
+
+ 
+  <form id="form" class="mb-4">
+    <div class="mb-2">
+      <input type="text" id="nome" placeholder="Nome" required class="form-control">
+    </div>
+    <div class="mb-2">
+      <input type="email" id="email" placeholder="Email" required class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+  </form>
+
+  <hr>
+
+ 
+  
+  <div class="mb-2">
+    <input type="text" id="busca" placeholder="Buscar por ID ounome" class="form-control">
+  </div>
+  
+
+  
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody id="tabela"></tbody>
+  </table>
+
+  <script>
+    const api = "/usuarios";
+    const form = document.getElementById("form");
+    const tabela = document.getElementById("tabela");
+
+   
+    let usuariosCache = [];
+
+
+    async function listar() {
+      try {
+        const response = await fetch(api);
+        const dados = await response.json();
+        usuariosCache = dados; 
+
+        tabela.innerHTML = "";
+        dados.forEach(u => {
+          tabela.innerHTML += `
+            <tr id="linha-${u.id}">
+              <td>${u.id}</td>
+              <td class="nome">${u.nome}</td>
+              <td class="email">${u.email}</td>
+              <td>
+                <button class="btn btn-warning btn-sm" onclick="editar(${u.id})">Editar</button>
+                <button class="btn btn-success btn-sm" onclick="salvarEdicao(${u.id})" style="display:none">Salvar</button>
+                <button class="btn btn-danger btn-sm" onclick="deletar(${u.id})">Deletar</button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (error) {
+        console.error("Erro ao carregar usuários:", error);
+      }
+    }
+
+    
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+
+      const usuario = {
+        nome: document.getElementById("nome").value.trim(),
+        email: document.getElementById("email").value.trim()
+      };
+
+      try {
+        const response = await fetch(api, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(usuario)
+        });
+
+        if (!response.ok) throw new Error("Erro ao salvar usuário");
+
+        form.reset();
+        listar();
+      } catch (error) {
+        console.error("Erro ao salvar usuário:", error);
+        alert("Falha ao salvar usuário. Veja o console.");
+      }
+    });
+
+    
+    function editar(id) {
+      const linha = document.getElementById(`linha-${id}`);
+      const nomeTd = linha.querySelector(".nome");
+      const emailTd = linha.querySelector(".email");
+
+      
+      nomeTd.innerHTML = `<input type="text" class="form-control" value="${nomeTd.textContent}">`;
+      emailTd.innerHTML = `<input type="email" class="form-control" value="${emailTd.textContent}">`;
+
+      
+      const botoes = linha.querySelectorAll("td button");
+      botoes.forEach(btn => {
+        if (btn.textContent === "Salvar") {
+          btn.style.display = "inline-block";
+        }
+      });
+    }
+
+  
+    async function salvarEdicao(id) {
+      const linha = document.getElementById(`linha-${id}`);
+      const nome = linha.querySelector(".nome input").value.trim();
+      const email = linha.querySelector(".email input").value.trim();
+
+      try {
+        const response = await fetch(`${api}/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nome, email })
+        });
+
+        if (!response.ok) throw new Error("Erro ao atualizar usuário");
+
+        listar(); 
+      } catch (error) {
+        console.error("Erro ao atualizar usuário:", error);
+        alert("Falha ao atualizar usuário. Veja o console.");
+      }
+    }
+
+    
+    async function deletar(id) {
+      try {
+        const response = await fetch(`${api}/${id}`, { method: "DELETE" });
+        if (!response.ok) throw new Error("Erro ao deletar usuário");
+        listar();
+      } catch (error) {
+        console.error("Erro ao deletar usuário:", error);
+        alert("Falha ao deletar usuário. Veja o console.");
+      }
+    }
+
+  
+    
+    document.getElementById("busca").addEventListener("input", e => {
+      const termo = e.target.value.toLowerCase();
+      const filtrados = usuariosCache.filter(u => u.nome.toLowerCase().includes(termo) | u.id.toString().includes(termo));
+      tabela.innerHTML = "";
+      filtrados.forEach(u => {
+        tabela.innerHTML += `
+          <tr id="linha-${u.id}">
+            <td>${u.id}</td>
+            <td class="nome">${u.nome}</td>
+            <td class="email">${u.email}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" onclick="editar(${u.id})">Editar</button>
+              <button class="btn btn-success btn-sm" onclick="salvarEdicao(${u.id})" style="display:none">Salvar</button>
+              <button class="btn btn-danger btn-sm" onclick="deletar(${u.id})">Deletar</button>
+            </td>
+          </tr>
+        `;
+      });
+    });
+
+   
+    listar();
+  </script>
+
+</body>
+</html>
